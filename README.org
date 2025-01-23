@@ -1,0 +1,619 @@
+* project-headerline
+
+#+BEGIN: om-readme-toc
+- [[#screenshots][Screenshots]]
+- [[#features][Features]]
+- [[#credits][Credits]]
+- [[#releases][Releases]]
+- [[#installation][Installation]]
+- [[#usage][Usage]]
+- [[#local-variables][Local variables]]
+- [[#custom-faces][Custom faces]]
+- [[#custom-variables][Custom variables]]
+- [[#authors][Authors]]
+- [[#license][License]]
+#+END:
+
+=project-headerline= implements a minor mode that shows a headrline with current project name and path to current buffer from the project root.
+
+It is inspired =lsp-headerline=, but it doesn't show symbol and diagnostic information, doesn't depend on lsp, and can be used for buffers of any kind.
+
+** Screenshots
+
+[[./screenshot/file.png]]
+
+[[./screenshot/directory.png]]
+
+[[./screenshot/magit.png]]
+
+** Features
+
+- customizable appearance: segments, icons, faces, etc.
+- detecting projects using =project.el=, =projectile= (if installed), =magit= (if installed), =vc=
+- overwriting current project via local variables, e.g. via =.dir-locals.el=
+- registering project paths manually
+- registering custom rules for detecting projects and describing buffers
+- automatic update when file or buffer name changes
+- can be used with magit buffers that have their own headerline
+
+** Credits
+
+This package started as a fork of =lsp-headerline=, though currently there is barely any code in common, just approach and ideas.
+
+** Releases
+
+Changelog file can be found here: [[./CHANGES.md][changelog]].
+
+** Installation
+
+Required dependencies:
+
+- [[https://github.com/rejeep/f.el][f.el]]
+- [[https://github.com/magnars/s.el][s.el]]
+
+Optional dependencies:
+
+- [[https://github.com/domtronn/all-the-icons.el][all-the-icons]] (for separators)
+- [[https://github.com/bbatsov/projectile][projectile]] (project detection)
+- [[https://github.com/magit/magit][magit]] (project detection, special handling when used in magit buffers)
+
+Package was tested on Emacs 29.2 on Linux.
+
+Instructions for straight.el:
+
+#+BEGIN_EXAMPLE emacs-lisp
+  ;; required dependencies
+  (straight-use-package 'f)
+  (straight-use-package 's)
+
+  ;; optional dependencies
+  (straight-use-package 'projectile)
+  (straight-use-package 'magit)
+  (straight-use-package 'all-the-icons)
+
+  (straight-use-package
+   '(xlinum
+    :type git
+    :host github
+    :repo "gavv/project-headerline"
+    :branch "main"))
+#+END_EXAMPLE
+
+** Usage
+
+To enable in current buffer:
+
+#+BEGIN_EXAMPLE
+M-x project-headerline-mode
+#+END_EXAMPLE
+
+To enable in all major modes from =project-headerline-mode-list=:
+
+#+BEGIN_EXAMPLE
+M-x global-project-headerline-mode
+#+END_EXAMPLE
+
+To refresh state:
+
+#+BEGIN_EXAMPLE
+M-x project-headerline-reset
+#+END_EXAMPLE
+
+To update settings, it's recommened to use =custom-set-variables= instead of plain =setq=. This way, new settings will be automatically applied on fly without reopening buffers.
+
+For example:
+
+#+BEGIN_EXAMPLE
+(custom-set-variables
+  '(project-headerline-path-separator "/"))
+#+END_EXAMPLE
+
+** Local variables
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-current-project
+*** project-headerline-current-project
+Overwrite current project path.
+
+If this variable is set, it is used instead of =project-headerline-detect-alist=
+and =project-headerline-fallback-alist= and defines project name and path.
+
+It can be either a string or a list:
+
+ - If it's a string, it should be a path to project directory. Project name
+   is set to the directory name.
+
+ - If it's a list, it should be a plist with project properties, in the same
+   format as returned by =project-headerline-describe-project-function=.
+
+It's convenient to set this from local variables, e.g. in '.dir-locals.el'
+in the project root.
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  nil
+#+END_EXAMPLE
+#+END:
+
+** Custom faces
+
+#+BEGIN: om-readme-definition :type face :symb project-headerline-project-name
+*** project-headerline-project-name
+Face used for 'project-name segment.
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '((t :inherit font-lock-string-face :weight bold))
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type face :symb project-headerline-path-in-project
+*** project-headerline-path-in-project
+Face used for 'path-in-project segment.
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '((t :inherit font-lock-keyword-face))
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type face :symb project-headerline-buffer-name
+*** project-headerline-buffer-name
+Face used for 'buffer-name segment.
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '((t :inherit font-lock-builtin-face))
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type face :symb project-headerline-segment-separator
+*** project-headerline-segment-separator
+Face used for separator between segments.
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '((t :inherit shadow :height 0.8))
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type face :symb project-headerline-path-separator
+*** project-headerline-path-separator
+Face used for between path components inside =path-in-project= segment.
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '((t :inherit shadow :height 0.8))
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+** Custom variables
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-display-segments
+*** project-headerline-display-segments
+Which segments to show and in what order.
+
+Must be a list of symbols, where each symbol represents a segment:
+
+  - =project-name= - name of project where current file belongs
+  - =path-in-project= - relative path from project root up to the current file
+  - =buffer-name= - file name or buffer name
+
+=path-in-project= segment is present only if buffer is file or directory.
+=buffer-name= segment displays file or directory name if buffer is visiting one,
+and uses (buffer-name) otherwise.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (repeat
+   (choice
+    (const :tag "Project name." project-name)
+    (const :tag "Directories up to project." path-in-project)
+    (const :tag "Buffer or file name." buffer-name)))
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '(project-name path-in-project buffer-name)
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-segment-separator
+*** project-headerline-segment-separator
+String or icon to separate segments.
+
+Icon is actually also a string, but with special properties.
+For example, you can create one using =all-the-icons-material=.
+
+When separator is nil, =project-headerline-icon-function= is used
+to create it with default icon name.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (choice
+   (const :tag "Default" nil)
+   string)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  nil
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-path-separator
+*** project-headerline-path-separator
+String or icon to separate path components inside =path-in-project= segment.
+
+Icon is actually also a string, but with special properties.
+For example, you can create one using =all-the-icons-material=.
+
+When separator is nil, =project-headerline-icon-function= is used
+to create it with default icon name.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (choice
+   (const :tag "Default" nil)
+   string)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  nil
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-path-ellipsis
+*** project-headerline-path-ellipsis
+String or icon used when =path-in-project= segment is truncated.
+
+If the segment is too long, a few leading path components are
+replaced with the value of this variable.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (string)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  "..."
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-detect-alist
+*** project-headerline-detect-alist
+Assoc list of project detection methods.
+
+Assoc list key is a symbol of your choice.
+Assoc list value is a plist with the following properties:
+  - =:allow-remote= - whether to use this method on remote files
+  - =:describe= - detection function
+
+=:allow-remote= is by default disabled for all methods because it
+may be very slow (depending on your connection).
+
+Detection function should take no arguments and return a plist:
+  - =:name= - project name
+  - =:path= - project path (tramp paths are allowed)
+
+Detection methods are tried one by one, until some of them
+returns non-nil.
+
+Used by default implementation of
+=project-headerline-describe-project-function=.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (alist :key-type symbol :value-type
+         (plist :options
+                ((:allow-remote boolean)
+                 (:describe function))))
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  `(
+      ;; detect using projectile, if installed
+      (projectile :allow-remote nil
+                  :describe ,(lambda ()
+                               (when (and (featurep 'projectile)
+                                          (projectile-project-p))
+                                 (list :name (projectile-project-name)
+                                       :path (projectile-project-root)))))
+      ;; detect using builtin project.el package
+      (project :allow-remote nil
+               :describe ,(lambda ()
+                            (when-let ((project (project-current)))
+                              (list :name (project-name project)
+                                    :path (project-root project)))))
+      ;; detect using magit, if installed
+      (magit :allow-remote nil
+             :describe ,(lambda ()
+                          (when (featurep 'magit)
+                            (when-let ((magit-root (magit-toplevel)))
+                              (list :name (f-filename magit-root)
+                                    :path (f-full magit-root))))))
+      ;; detect using builtin vc package
+      (vc :allow-remote nil
+          :describe ,(lambda ()
+                       (when-let ((vc-root (vc-root-dir)))
+                         (list :name (f-filename vc-root)
+                               :path (f-full vc-root)))))
+      )
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-fallback-alist
+*** project-headerline-fallback-alist
+Assoc list of fallback projects when normal detection fails.
+
+Assoc list key is project name.
+Assoc list value is project path.
+
+If no project was detected using =project-headerline-detect-alist=,
+then =project-headerline-fallback-alist= is scanned. A fallback
+project is selected if it's path is the parent of buffer's path.
+
+You can use it both for real projects with hard-coded paths
+(e.g. if they're not identified by common methods), and for
+fallbacks for buffers that don't really belong to a project.
+
+By default, two 'pseudo projects' are registered: '~' for any
+file inside home directory, and '/' for any file elsewhere
+on filesystem. You can disable this by removing corresponding
+elements from the assoc list.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (alist :key-type
+         (string :tag "Project Name")
+         :value-type
+         (string :tag "Project Path"))
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '(
+      ("~" . "~/")
+      ("/" . "/")
+      )
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-rename-alist
+*** project-headerline-rename-alist
+Assoc list of buffer rename rules.
+
+Assoc list key is a regular expression.
+Assoc list value is a replacement string that can use capture groups.
+
+Keys and values are passed to =replace-regexp-in-string= and FROM and
+TO arguments. If any of the rule matches buffer, buffer name displayed
+in headerline is changed according to the replacement.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (alist :key-type
+         (string :tag "Buffer Name Regexp")
+         :value-type
+         (string :tag "Buffer Name Replacement"))
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '(
+      ("^\\(magit\\):.*" . "\\1")
+      ("^\\(magit-[a-z]+\\):.*" . "\\1")
+      ("^\\*compilation\\*<.*>" . "compilation")
+      ("^\\*compilation<.*>\\*" . "compilation")
+      )
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-describe-project-function
+*** project-headerline-describe-project-function
+Function that returns properties of current project.
+
+Takes no arguments and returns plist:
+  - =:name= - project name
+  - =:path= - project directory path
+
+Default implementation uses the following algorithm:
+  - if =project-headerline-current-project= is set, uses it
+  - tries rules from =project-headerline-detect-alist=
+  - tries paths from =project-headerline-fallback-alist=
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (function)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  #'project-headerline-describe-project
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-describe-buffer-function
+*** project-headerline-describe-buffer-function
+Function that returns properties of current buffer.
+
+Takes no arguments and returns plist:
+  - =:type= - kind of buffer, one of the symbols: =file=, =dir=, =other=
+  - =:dir= - path to buffer's directory
+  - =:name= - name of buffer
+
+For =file= buffers, =:dir= is path to directory containing the file.
+For =dir= buffers, =:dir= is path to directory itself.
+For =other= buffers, =:dir= is path to a directory associated with
+the buffer, typically =default-directory= inside that buffer.
+
+Default implementation reports =dir= for dired buffers, =file= for
+buffers with non-empty =buffer-file-name=, and =other= for the rest.
+It also applies buffer renaming rules according to variable
+=project-headerline-rename-alist=.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (function)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  #'project-headerline-describe-buffer
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-format-function
+*** project-headerline-format-function
+Function to format headerline from project and buffer properties.
+
+Takes two arguments:
+  - =project= - plist from =project-headerline-describe-project-function=
+  - =buffer= - plist from =project-headerline-describe-buffer-function=
+
+Returns propertized string with headerline contents.
+
+Default implementation formats headerline according to variables
+=project-headerline-display-segments=, =project-headerline-segment-separator=,
+=project-headerline-path-separator= (or =project-headerline-icon-function=),
+and applies corresponding faces.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (function)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  #'project-headerline-format
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-icon-function
+*** project-headerline-icon-function
+Function to create icon from name.
+
+Takes two arguments:
+  - =icon-name= - string name of the icon
+  - =icon-face= - face to apply to the icon
+
+Returns propertized string with the icon.
+If icon is not available, returns nil. In this case fallback
+character will be used instead of the icon.
+
+Default implementation uses =all-the-icons-material= when it's
+available, or returns nil otherwise.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (function)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  #'project-headerline-icon
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-width-function
+*** project-headerline-width-function
+Function to return maximum headerline width.
+Takes no arguments and returns number of characters.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (function)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  #'project-headerline-width
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+#+BEGIN: om-readme-definition :type var :symb project-headerline-mode-list
+*** project-headerline-mode-list
+Modes in which =global-project-headerline-mode= enables =project-headerline-mode=.
+Note that minibuffer and hidden buffers are always excluded.
+
+*Variable type:*
+#+BEGIN_EXAMPLE
+  (repeat symbol)
+#+END_EXAMPLE
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '(prog-mode
+      conf-mode
+      text-mode
+      dired-mode)
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
+** Authors
+
+Authors ordered by first contribution:
+
+#+BEGIN: om-readme-authors
+- Victor Gaydov (victor@enise.org)
+#+END:
+
+** License
+
+[[LICENSE][GPLv3+]]
