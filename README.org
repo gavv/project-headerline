@@ -72,7 +72,7 @@ Instructions for straight.el:
   (straight-use-package 'all-the-icons)
 
   (straight-use-package
-   '(xlinum
+   '(project-headerline
     :type git
     :host github
     :repo "gavv/project-headerline"
