@@ -29,11 +29,11 @@
 
 ;;; Commentary:
 
-;; project-headerline implements a minor mode that shows a headrline with
-;; current project name and path to current buffer from the project root.
+;; project-headerline implements a minor mode that shows a headerline with
+;; current project name, and the path to current buffer from the project root.
 
-;; It is inspired lsp-headerline, but it doesn't show symbol and diagnostic
-;; information, doesn't depend on lsp, and can be used for buffers of any kind.
+;; It is inspired by lsp-headerline, but it doesn't show symbol and diagnostic
+;; information, has no dependency on lsp, and can be used for buffers of any kind.
 
 ;; Please refer to README.org and docstrings for further details.
 
