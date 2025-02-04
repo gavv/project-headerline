@@ -786,8 +786,9 @@ derived from one of the modes in `project-headerline-mode-list'.
 Never enable in minibuffer and hidden buffers."
   (when (and (not (minibufferp))
              (not (string-match "^ " (buffer-name)))
-             (seq-some #'derived-mode-p project-headerline-mode-list))
-    (project-headerline--enable)))
+             (seq-some #'derived-mode-p project-headerline-mode-list)
+             (not project-headerline-mode))
+    (project-headerline-mode 1)))
 
 (defun project-headerline--register-advices ()
   "Register all advices, if not registered yet."
