@@ -776,17 +776,21 @@ no visible changes are made."
       (apply orig-fn args)
     (let ((from (car args))
           (to (cadr args)))
-      (dolist (buffer (buffer-list))
-        (when-let ((buffer-path (buffer-file-name buffer)))
-          (when (or (and from (f-same-p buffer-path from))
-                    (and to (f-same-p buffer-path to)))
-            (project-headerline-reset-buffer buffer)))))))
+      (project-headerline--reset-paths from to))))
+
+(defun project-headerline--add-name-to-file-advice (orig-fn &rest args)
+  "Wraps add-name-to-file to update headerline on name change."
+  (unwind-protect
+      (apply orig-fn args)
+    (let ((from (car args))
+          (to (cadr args)))
+      (project-headerline--reset-paths from to))))
 
 (defun project-headerline--rename-buffer-advice (orig-fn &rest args)
   "Wraps rename-buffer to update headerline on name change."
   (unwind-protect
       (apply orig-fn args)
-    (project-headerline-reset-buffer)))
+    (project-headerline--reset-buffer)))
 
 (defun project-headerline--enable-maybe ()
   "Enable `project-headerline-mode' in current buffer if its major mode is
@@ -805,30 +809,44 @@ Never enable in minibuffer and hidden buffers."
                 :around #'project-headerline--magit-advice))
   (advice-add 'rename-file
               :around #'project-headerline--rename-file-advice)
+  (advice-add 'add-name-to-file
+              :around #'project-headerline--add-name-to-file-advice)
   (advice-add 'rename-buffer
               :around #'project-headerline--rename-buffer-advice))
 
 (defun project-headerline--register-hooks ()
   "Register all hooks."
   (add-hook 'window-configuration-change-hook
-            #'project-headerline-reset-buffer nil :local)
+            #'project-headerline--reset-buffer nil :local)
   (add-hook 'after-revert-hook
-            #'project-headerline-reset-buffer nil :local))
+            #'project-headerline--reset-buffer nil :local)
+  (add-hook 'after-set-visited-file-name-hook
+            #'project-headerline--reset-buffer nil :local))
 
 (defun project-headerline--unregister-hooks ()
   "Unregister all hooks."
   (remove-hook 'window-configuration-change-hook
-               #'project-headerline-reset-buffer :local)
+               #'project-headerline--reset-buffer :local)
   (remove-hook 'after-revert-hook
-               #'project-headerline-reset-buffer :local))
+               #'project-headerline--reset-buffer :local)
+  (remove-hook 'after-set-visited-file-name-hook
+               #'project-headerline--reset-buffer :local))
 
-(defun project-headerline-reset-buffer (&optional buffer)
-  "Invalidate headerline caches and refresh"
+(defun project-headerline--reset-buffer (&optional buffer)
+  "Refresh headerline in given BUFFER (or current)."
   (with-current-buffer (or buffer (current-buffer))
     (when (bound-and-true-p project-headerline--cache)
       (setq-local project-headerline--cache nil))
     (when project-headerline-mode
       (force-mode-line-update))))
+
+(defun project-headerline--reset-paths (&rest paths)
+  "Refresh headerline in buffers visiting any of PATHS."
+  (dolist (buffer (buffer-list))
+    (when-let ((buffer-path (buffer-file-name buffer)))
+      (dolist (path paths)
+        (when (and path (f-same-p buffer-path path))
+          (project-headerline--reset-buffer buffer))))))
 
 ;;;###autoload
 (defun project-headerline-reset (&optional buffer)
@@ -836,9 +854,9 @@ Never enable in minibuffer and hidden buffers."
 If BUFFER is given, refresh only that buffer."
   (interactive)
   (if buffer
-      (project-headerline-reset-buffer buffer)
+      (project-headerline--reset-buffer buffer)
     (dolist (buffer (buffer-list))
-      (project-headerline-reset-buffer buffer))))
+      (project-headerline--reset-buffer buffer))))
 
 ;;;###autoload
 (define-minor-mode project-headerline-mode
@@ -856,7 +874,7 @@ If BUFFER is given, refresh only that buffer."
     ;; disable mode
     (project-headerline--unregister-hooks)
     (project-headerline--composer-remove 'project-headerline--compose)
-    (project-headerline-reset-buffer)
+    (project-headerline--reset-buffer)
     (force-mode-line-update)))
 
 ;;;###autoload
