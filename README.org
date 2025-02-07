@@ -201,6 +201,19 @@ Face used for between path components inside =path-in-project= segment.
   - 0.1
 #+END:
 
+#+BEGIN: om-readme-definition :type face :symb project-headerline-space
+*** project-headerline-space
+Face used for spaces around segment and path separators.
+
+*Default value:*
+#+BEGIN_EXAMPLE
+  '((t :height 0.5))
+#+END_EXAMPLE
+
+*Introduced in version:*
+  - 0.1
+#+END:
+
 ** Custom variables
 
 #+BEGIN: om-readme-definition :type var :symb project-headerline-display-segments

@@ -90,6 +90,12 @@
   :package-version '(project-headerline . "0.1")
   :group 'project-headerline)
 
+(defface project-headerline-space
+  '((t :height 0.5))
+  "Face used for spaces around segment and path separators."
+  :package-version '(project-headerline . "0.1")
+  :group 'project-headerline)
+
 (defcustom project-headerline-display-segments '(project-name path-in-project buffer-name)
   "Which segments to show and in what order.
 
@@ -530,10 +536,11 @@ Default implementation of `project-headerline-icon-function',
 see its docstring for details."
   (when (functionp 'all-the-icons-material)
     (let ((all-the-icons-scale-factor 1.0)
-          (all-the-icons-default-adjust -0.18))
+          (all-the-icons-default-adjust -0.15))
       (when-let* ((icon (all-the-icons-material icon-name :face icon-face))
-                  (sep (s-concat " " icon " ")))
-        sep))))
+                  (space (propertize " " 'font-lock-face 'project-headerline-space)))
+        (s-concat
+         space icon space)))))
 
 (defun project-headerline-width ()
   "Return maximum number of characters in headerline.
@@ -554,8 +561,9 @@ see its docstring for details."
       (project-headerline--call project-headerline-icon-function
                                 default-icon face-name)
       ;; default char
-      (propertize (s-concat " " default-char " ")
-                  'face face-name)))))
+      (let ((char (propertize default-char 'font-lock-face face-name))
+            (space (propertize " " 'font-lock-face 'project-headerline-space)))
+        (s-concat space char space))))))
 
 (defun project-headerline--path-components (root-path path)
   "Split path from ROOT-PATH to CURR-PATH into components."
