@@ -546,7 +546,7 @@ see its docstring for details."
   "Return maximum number of characters in headerline.
 Default implementation of `project-headerline-width-function',
 see its docstring for details."
-  (/ (window-width) 1.5))
+  (window-width))
 
 (defun project-headerline--separator (key default-icon default-char)
   "Make propertized icon string."
