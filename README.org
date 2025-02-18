@@ -1,7 +1,7 @@
 * project-headerline
 
 #+BEGIN: om-readme-toc
-- [[#screenshots][Screenshots]]
+- [[#synopsys][Synopsys]]
 - [[#features][Features]]
 - [[#credits][Credits]]
 - [[#releases][Releases]]
@@ -14,11 +14,14 @@
 - [[#license][License]]
 #+END:
 
+** Synopsys
+   :PROPERTIES:
+   :CUSTOM_ID: synopsys
+   :END:
+
 =project-headerline= implements a minor mode that shows a headerline with current project name, and the path to current buffer from the project root.
 
 It is inspired by =lsp-headerline=, but it doesn't show symbol and diagnostic information, has no dependency on lsp, and can be used for buffers of any kind.
-
-** Screenshots
 
 [[./screenshot/file.png]]
 
@@ -27,6 +30,9 @@ It is inspired by =lsp-headerline=, but it doesn't show symbol and diagnostic in
 [[./screenshot/magit.png]]
 
 ** Features
+   :PROPERTIES:
+   :CUSTOM_ID: features
+   :END:
 
 - customizable appearance: segments, icons, faces, etc.
 - detecting projects using =project.el=, =projectile= (if installed), =magit= (if installed), =vc=
@@ -37,14 +43,23 @@ It is inspired by =lsp-headerline=, but it doesn't show symbol and diagnostic in
 - can be used with magit buffers that have their own headerline
 
 ** Credits
+   :PROPERTIES:
+   :CUSTOM_ID: credits
+   :END:
 
 This package started as a fork of =lsp-headerline=, though currently there is barely any code in common, just approach and ideas.
 
 ** Releases
+   :PROPERTIES:
+   :CUSTOM_ID: releases
+   :END:
 
 Changelog file can be found here: [[./CHANGES.md][changelog]].
 
 ** Installation
+   :PROPERTIES:
+   :CUSTOM_ID: installation
+   :END:
 
 Required dependencies:
 
@@ -80,6 +95,9 @@ Instructions for straight.el:
 #+END_EXAMPLE
 
 ** Usage
+   :PROPERTIES:
+   :CUSTOM_ID: usage
+   :END:
 
 To enable in current buffer:
 
@@ -109,6 +127,9 @@ For example:
 #+END_EXAMPLE
 
 ** Local variables
+   :PROPERTIES:
+   :CUSTOM_ID: local-variables
+   :END:
 
 #+BEGIN: om-readme-definition :type var :symb project-headerline-current-project
 *** project-headerline-current-project
@@ -135,6 +156,9 @@ in the project root.
 #+END:
 
 ** Custom faces
+   :PROPERTIES:
+   :CUSTOM_ID: custom-faces
+   :END:
 
 #+BEGIN: om-readme-definition :type face :symb project-headerline-project-name
 *** project-headerline-project-name
@@ -215,6 +239,9 @@ Face used for spaces around segment and path separators.
 #+END:
 
 ** Custom variables
+   :PROPERTIES:
+   :CUSTOM_ID: custom-variables
+   :END:
 
 #+BEGIN: om-readme-definition :type var :symb project-headerline-display-segments
 *** project-headerline-display-segments
@@ -620,6 +647,9 @@ Note that minibuffer and hidden buffers are always excluded.
 #+END:
 
 ** Authors
+   :PROPERTIES:
+   :CUSTOM_ID: authors
+   :END:
 
 Authors ordered by first contribution:
 
@@ -628,5 +658,8 @@ Authors ordered by first contribution:
 #+END:
 
 ** License
+   :PROPERTIES:
+   :CUSTOM_ID: license
+   :END:
 
 [[LICENSE][GPLv3+]]
