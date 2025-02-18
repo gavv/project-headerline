@@ -404,15 +404,21 @@ Otherwise, evaluate FORM, store in cache, and return it."
      (or (gethash ,key cache)
          (puthash ,key ,form cache))))
 
-(defmacro project-headerline--call (func &rest args)
+(defmacro project-headerline--call (func-or-cons &rest args)
   "Call user function.
 On error, display warning and return nil."
-  `(condition-case err
-       (funcall ,func ,@args)
-     (error
-      (warn "Caught error from %s: %s" ,(symbol-name func)
-            (error-message-string err))
-      nil)))
+  (let ((func (if (consp func-or-cons)
+                  (car func-or-cons)
+                func-or-cons))
+        (name (if (consp func-or-cons)
+                  (cdr func-or-cons)
+                (symbol-name func-or-cons))))
+    `(condition-case err
+         (funcall ,func ,@args)
+       (error
+        (warn "Caught error from %s: %s" ,name
+              (error-message-string err))
+        nil))))
 
 (defun project-headerline-describe-project ()
   "Get current project properties.
@@ -442,7 +448,8 @@ see its docstring for details."
                 (when (and (or allow-remote
                                (not (file-remote-p default-directory)))
                            describe-fn)
-                  (project-headerline--call describe-fn))))
+                  (project-headerline--call
+                   (describe-fn . "project-headerline-detect-alist :describe")))))
             project-headerline-detect-alist))
 
 (defun project-headerline--project-from-fallback-alist ()
