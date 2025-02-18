@@ -93,7 +93,7 @@
 (defface project-headerline-space
   '((t :height 0.5))
   "Face used for spaces around segment and path separators."
-  :package-version '(project-headerline . "0.1")
+  :package-version '(project-headerline . "0.2")
   :group 'project-headerline)
 
 (defcustom project-headerline-display-segments '(project-name path-in-project buffer-name)
