@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.3][v0.3] - 18 Feb 2025
+
+* Fix handling errors in user-defined functions
+* Fix package version in defface
+* Update documentation
+
+[v0.3]: https://github.com/gavv/project-headerline/releases/tag/v0.3
+
 ## [v0.2][v0.2] - 07 Feb 2025
 
 * Fix global-project-headerline-mode
