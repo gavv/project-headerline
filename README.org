@@ -651,15 +651,11 @@ Note that minibuffer and hidden buffers are always excluded.
    :CUSTOM_ID: authors
    :END:
 
-Authors ordered by first contribution:
-
-#+BEGIN: om-readme-authors
-- Victor Gaydov (victor@enise.org)
-#+END:
+See [[./AUTHORS.org][here]].
 
 ** License
    :PROPERTIES:
    :CUSTOM_ID: license
    :END:
 
-[[LICENSE][GPLv3+]]
+[[./LICENSE][GPLv3+]]

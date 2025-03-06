@@ -1,0 +1,7 @@
+* Authors
+
+project-headerline authors, ordered by first contribution:
+
+#+BEGIN: om-readme-authors
+- Victor Gaydov =gavv= (victor@enise.org)
+#+END:
