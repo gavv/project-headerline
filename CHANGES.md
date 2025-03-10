@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.4][v0.4] - 10 Mar 2025
+
+* Fix compatibility with Emacs 28.2
+* Add missing headers: Package-Requires, Version, Keywords
+* Fix byte compiler and linter warnings
+* Add Eask and Makefile
+* Add github actions CI
+
+[v0.4]: https://github.com/gavv/project-headerline/releases/tag/v0.4
+
 ## [v0.3][v0.3] - 18 Feb 2025
 
 * Fix handling errors in user-defined functions
