@@ -1,5 +1,7 @@
 * project-headerline
 
+[[https://github.com/gavv/project-headerline/actions/workflows/build.yaml][file:https://github.com/gavv/project-headerline/actions/workflows/build.yaml/badge.svg]]
+
 #+BEGIN: om-readme-toc
 - [[#synopsys][Synopsys]]
 - [[#features][Features]]
@@ -140,7 +142,7 @@ and =project-headerline-fallback-alist= and defines project name and path.
 
 It can be either a string or a list:
 
- - If it's a string, it should be a path to project directory. Project name
+ - If it's a string, it should be a path to project directory.  Project name
    is set to the directory name.
 
  - If it's a list, it should be a plist with project properties, in the same
@@ -235,7 +237,7 @@ Face used for spaces around segment and path separators.
 #+END_EXAMPLE
 
 *Introduced in version:*
-  - 0.1
+  - 0.2
 #+END:
 
 ** Custom variables
@@ -255,7 +257,7 @@ Must be a list of symbols, where each symbol represents a segment:
 
 =path-in-project= segment is present only if buffer is file or directory.
 =buffer-name= segment displays file or directory name if buffer is visiting one,
-and uses (buffer-name) otherwise.
+and uses function (buffer-name) otherwise.
 
 *Variable type:*
 #+BEGIN_EXAMPLE
@@ -268,7 +270,13 @@ and uses (buffer-name) otherwise.
 
 *Default value:*
 #+BEGIN_EXAMPLE
-  '(project-name path-in-project buffer-name)
+  '(
+      ;; list of pre-defined symbols, each symbol corresponds to a segment
+      project-name
+      path-in-project
+      buffer-name
+      ;;
+      )
 #+END_EXAMPLE
 
 *Introduced in version:*
@@ -303,7 +311,7 @@ to create it with default icon name.
 
 #+BEGIN: om-readme-definition :type var :symb project-headerline-path-separator
 *** project-headerline-path-separator
-String or icon to separate path components inside =path-in-project= segment.
+String or icon to separate path components inside 'path-in-project segment.
 
 Icon is actually also a string, but with special properties.
 For example, you can create one using =all-the-icons-material=.
@@ -392,7 +400,7 @@ Used by default implementation of
       (project :allow-remote nil
                :describe ,(lambda ()
                             (when-let ((project (project-current)))
-                              (list :name (project-name project)
+                              (list :name (f-base (project-root project))
                                     :path (project-root project)))))
       ;; detect using magit, if installed
       (magit :allow-remote nil
@@ -407,6 +415,7 @@ Used by default implementation of
                        (when-let ((vc-root (vc-root-dir)))
                          (list :name (f-filename vc-root)
                                :path (f-full vc-root)))))
+      ;;
       )
 #+END_EXAMPLE
 
@@ -422,7 +431,7 @@ Assoc list key is project name.
 Assoc list value is project path.
 
 If no project was detected using =project-headerline-detect-alist=,
-then =project-headerline-fallback-alist= is scanned. A fallback
+then =project-headerline-fallback-alist= is scanned.  A fallback
 project is selected if it's path is the parent of buffer's path.
 
 You can use it both for real projects with hard-coded paths
@@ -431,7 +440,7 @@ fallbacks for buffers that don't really belong to a project.
 
 By default, two 'pseudo projects' are registered: '~' for any
 file inside home directory, and '/' for any file elsewhere
-on filesystem. You can disable this by removing corresponding
+on filesystem.  You can disable this by removing corresponding
 elements from the assoc list.
 
 *Variable type:*
@@ -445,8 +454,11 @@ elements from the assoc list.
 *Default value:*
 #+BEGIN_EXAMPLE
   '(
+      ;; pseudo-project "~" for all orphan files under $HOME
       ("~" . "~/")
+      ;; pseudo-project "/" for all other orphan files
       ("/" . "/")
+      ;;
       )
 #+END_EXAMPLE
 
@@ -462,7 +474,7 @@ Assoc list key is a regular expression.
 Assoc list value is a replacement string that can use capture groups.
 
 Keys and values are passed to =replace-regexp-in-string= and FROM and
-TO arguments. If any of the rule matches buffer, buffer name displayed
+TO arguments.  If any of the rule matches buffer, buffer name displayed
 in headerline is changed according to the replacement.
 
 *Variable type:*
@@ -476,10 +488,13 @@ in headerline is changed according to the replacement.
 *Default value:*
 #+BEGIN_EXAMPLE
   '(
+      ;; magit
       ("^\\(magit\\):.*" . "\\1")
       ("^\\(magit-[a-z]+\\):.*" . "\\1")
+      ;; compilation
       ("^\\*compilation\\*<.*>" . "compilation")
       ("^\\*compilation<.*>\\*" . "compilation")
+      ;;
       )
 #+END_EXAMPLE
 
@@ -528,9 +543,9 @@ For =dir= buffers, =:dir= is path to directory itself.
 For =other= buffers, =:dir= is path to a directory associated with
 the buffer, typically =default-directory= inside that buffer.
 
-Default implementation reports =dir= for dired buffers, =file= for
-buffers with non-empty =buffer-file-name=, and =other= for the rest.
-It also applies buffer renaming rules according to variable
+Default implementation reports =dir= for Dired buffers, =file= for
+buffers with non-empty variable =buffer-file-name=, and =other= for
+the rest.  It also applies buffer renaming rules according to variable
 =project-headerline-rename-alist=.
 
 *Variable type:*
@@ -585,7 +600,7 @@ Takes two arguments:
   - =icon-face= - face to apply to the icon
 
 Returns propertized string with the icon.
-If icon is not available, returns nil. In this case fallback
+If icon is not available, returns nil.  In this case fallback
 character will be used instead of the icon.
 
 Default implementation uses =all-the-icons-material= when it's
@@ -626,7 +641,11 @@ Takes no arguments and returns number of characters.
 
 #+BEGIN: om-readme-definition :type var :symb project-headerline-mode-list
 *** project-headerline-mode-list
-Modes in which =global-project-headerline-mode= enables =project-headerline-mode=.
+Modes in which to enable =project-headerline-mode= automatically.
+
+When =global-project-headerline-mode= is enabled, it enables headerline
+in buffer if its major mode is derived from one of these modes.
+
 Note that minibuffer and hidden buffers are always excluded.
 
 *Variable type:*
