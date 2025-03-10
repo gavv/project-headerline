@@ -74,7 +74,7 @@ Optional dependencies:
 - [[https://github.com/bbatsov/projectile][projectile]] (project detection)
 - [[https://github.com/magit/magit][magit]] (project detection, special handling when used in magit buffers)
 
-Package was tested on Emacs 29.2 on Linux.
+Package was tested on Emacs 28.2 on Linux.
 
 Instructions for straight.el:
 
