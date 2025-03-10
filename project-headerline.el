@@ -6,6 +6,9 @@
 ;; Author: Victor Gaydov <victor@enise.org>
 ;; Created: 03 Feb 2025
 ;; URL: https://github.com/gavv/project-headerline
+;; Version: 0.4
+;; Package-Requires: ((emacs "28.2") (f "0.21.0") (s "1.13.0") (all-the-icons "5.0.0"))
+;; Keywords: convenience
 
 ;;; License:
 
