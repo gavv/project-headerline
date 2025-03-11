@@ -917,5 +917,4 @@ If BUFFER is given, refresh only that buffer."
   :group 'project-headerline)
 
 (provide 'project-headerline)
-
 ;;; project-headerline.el ends here
